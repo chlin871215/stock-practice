@@ -154,7 +154,7 @@ public class TransactionService {
             lastDocSeqEng = transactionRepo.getNewDocSeq(tradeDate).substring(0, 2);//取英文0~1
             lastDocSeqInt = Integer.parseInt(transactionRepo.getNewDocSeq(tradeDate).substring(2, 5));//取數字2~4
         }
-        List<Integer> engToAscii = lastDocSeqEng.chars().boxed().collect(Collectors.toList());//英文轉ascii
+        List<Integer> engToAscii = lastDocSeqEng.chars().boxed().collect(Collectors.toList());//英文轉ascii,box()之作用為將int轉為INTEGER
         //數字+1
         lastDocSeqInt++;
         //進位處理--------------------------------------------------------------------------------------------------
@@ -173,7 +173,7 @@ public class TransactionService {
         }
         //數值轉字串之檢查---------------------------------------------------------------------------------------------
         {
-            String newDocSeqInt = String.format("%03d", lastDocSeqInt);//數值轉字串
+            String newDocSeqInt = String.format("%03d", lastDocSeqInt);//數值轉字串，%03d：表示補0到第3位
             String newDocSeqEng = "";
             for (int ascii : engToAscii) {
                 newDocSeqEng += Character.toString(ascii);//list英文ascii轉字串
