@@ -120,7 +120,7 @@ public class TransactionService {
     取得成本、剩餘股數
     查詢股票資訊表
     取得現價
-    未實現損益＝現價*剩餘股數-成本-手續費-交易稅
+    未實現損益＝現價*剩餘股數-成本-賣之手續費-賣之交易稅
     回傳字串
      */
     public String unrealizedGainsAndLosses(String stock) {
