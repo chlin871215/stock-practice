@@ -42,6 +42,10 @@ public class TransactionService {
             if (transactionRequest.getQty() <= 0 || null == transactionRequest.getQty()) {
                 return "Qty data wrong";
             }
+            //qty數量過大
+            if (transactionRequest.getQty() >= 1_000_000_000) {
+                return "Qty too much";
+            }
             //check:bsType
             if (transactionRequest.getBsType().isEmpty() || transactionRequest.getBsType().isBlank()) {
                 return "BsType data wrong";
@@ -54,7 +58,11 @@ public class TransactionService {
                 if (null == stockBalanceRepo.findByStock(transactionRequest.getStock()) || stockBalanceRepo.findByStock(transactionRequest.getStock()).getQty() - transactionRequest.getQty() < 0) {
                     return "Stock Balance doesn't enough";
                 }
+            } else if (transactionRequest.getQty()+stockBalanceRepo.findByStock(transactionRequest.getStock()).getRemainQty() >= 1_000_000_000) {
+                return "RemainQty too much";
             }
+            //too much remainQty
+
         }
         //創建明細--------------------------------------------------------------------------------------------------
         TransactionDetail transactionDetail = new TransactionDetail();
@@ -70,7 +78,7 @@ public class TransactionService {
             transactionDetail.setAmt(getAmt(transactionDetail.getPrice(), transactionDetail.getQty()));//單價*股數=amt
             transactionDetail.setFee(getFee(transactionDetail.getAmt()));//fee
             transactionDetail.setTax(getTax(transactionDetail.getAmt(), transactionDetail.getBsType()));//根據bsType決定tax
-            transactionDetail.setTransferTax(0);//交易稅目前為0
+            transactionDetail.setTransferTax(0.0);//交易稅目前為0
             transactionDetail.setNetAmt(getNetAmt(transactionDetail.getAmt(), transactionDetail.getFee(), transactionDetail.getTax(), transactionDetail.getBsType()));//根據四項數據得到淨收付
             transactionDetail.setModDate(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")));//modDate
             transactionDetail.setModTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("HHmmss")));//modTime
@@ -86,15 +94,15 @@ public class TransactionService {
                 stockBalanceRepo.delete(oldStockBalance);//delete oldData in repo
                 newStockBalance.setPrice(getBalancePrice(oldStockBalance.getPrice(), oldStockBalance.getQty(), transactionDetail.getPrice(), transactionDetail.getQty()));
                 newStockBalance.setQty(getBalanceQty(oldStockBalance.getQty(), transactionDetail.getQty(), transactionDetail.getBsType()));
-                newStockBalance.setRemainQty(getBalanceQty(oldStockBalance.getQty(), transactionDetail.getQty(), transactionDetail.getBsType()));
+                newStockBalance.setRemainQty(getBalanceQty(oldStockBalance.getRemainQty(), transactionDetail.getQty(), transactionDetail.getBsType()));
                 newStockBalance.setFee(oldStockBalance.getFee() + transactionDetail.getFee());
                 newStockBalance.setCost(getBalanceCost(oldStockBalance.getCost(), transactionDetail.getNetAmt(), transactionDetail.getBsType()));
             } else {
-                newStockBalance.setPrice(getBalancePrice(0.0, 0, transactionDetail.getPrice(), transactionDetail.getQty()));
-                newStockBalance.setQty(getBalanceQty(0, transactionDetail.getQty(), transactionDetail.getBsType()));
-                newStockBalance.setRemainQty(getBalanceQty(0, transactionDetail.getQty(), transactionDetail.getBsType()));
+                newStockBalance.setPrice(getBalancePrice(0.0, 0.0, transactionDetail.getPrice(), transactionDetail.getQty()));
+                newStockBalance.setQty(getBalanceQty(0.0, transactionDetail.getQty(), transactionDetail.getBsType()));
+                newStockBalance.setRemainQty(getBalanceQty(0.0, transactionDetail.getQty(), transactionDetail.getBsType()));
                 newStockBalance.setFee(transactionDetail.getFee());
-                newStockBalance.setCost(getBalanceCost(0, transactionDetail.getNetAmt(), transactionDetail.getBsType()));
+                newStockBalance.setCost(getBalanceCost(0.0, transactionDetail.getNetAmt(), transactionDetail.getBsType()));
             }
             newStockBalance.setTradeDate(transactionDetail.getTradeDate());
             newStockBalance.setBranchNo(transactionDetail.getBranchNo());
@@ -138,10 +146,10 @@ public class TransactionService {
         }
         //process
         {
-            int cost = stockBalanceRepo.findByStock(stock).getCost();
-            int qty = stockBalanceRepo.findByStock(stock).getQty();
+            Double cost = stockBalanceRepo.findByStock(stock).getCost();
+            Double qty = stockBalanceRepo.findByStock(stock).getQty();
             Double curPrice = stockInfoRepo.findByStock(stock).getCurPrice();
-            return Integer.toString((int) (curPrice * qty) - cost - getFee(getAmt(curPrice, qty)) - getTax(getAmt(curPrice, qty), "S"));
+            return Double.toString((curPrice * qty) - cost - getFee(getAmt(curPrice, qty)) - getTax(getAmt(curPrice, qty), "S"));
         }
     }
 
@@ -182,33 +190,33 @@ public class TransactionService {
         }
     }
 
-    private int getAmt(double price, int qty) {
-        return (int) (price * qty);
+    private Double getAmt(Double price, Double qty) {
+        return price * qty;
     }
 
-    private int getFee(int amt) {
-        int fee = (int) Math.round(amt * 0.001425);
+    private Double getFee(Double amt) {
+        Double fee = (double) Math.round(amt * 0.001425);
         return fee;
     }
 
-    private int getTax(int amt, String bsType) {
+    private Double getTax(Double amt, String bsType) {
         if (bsType.equals("S"))
-            return (int) Math.round(amt * 0.003);
-        return 0;
+            return (double) Math.round(amt * 0.003);
+        return 0.0;
     }
 
-    private int getNetAmt(int amt, int fee, int tax, String bsType) {
+    private Double getNetAmt(Double amt, Double fee, Double tax, String bsType) {
         if (bsType.equals("B")) {
             return -(amt + fee);
         }
         return amt - fee - tax;
     }
 
-    private Double getBalancePrice(Double oldPrice, int oldQty, Double newPrice, int newQty) {//依比例計算價格
+    private Double getBalancePrice(Double oldPrice, Double oldQty, Double newPrice, Double newQty) {//依比例計算價格
         return (oldPrice * oldQty + newPrice * newQty) / (oldQty + newQty);
     }
 
-    private int getBalanceCost(int oldNetAmt, int newNetAmt, String bsType) {
+    private Double getBalanceCost(Double oldNetAmt, Double newNetAmt, String bsType) {
         if (bsType.equals("B")) {
             return Math.abs(oldNetAmt) + Math.abs(newNetAmt);
         } else {
@@ -216,7 +224,7 @@ public class TransactionService {
         }
     }
 
-    private int getBalanceQty(int oldQty, int newQty, String bsType) {
+    private Double getBalanceQty(Double oldQty, Double newQty, String bsType) {
         if (bsType.equals("B"))
             return oldQty + newQty;
         return oldQty - newQty;

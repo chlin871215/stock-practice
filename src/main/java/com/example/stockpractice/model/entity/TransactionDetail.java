@@ -34,17 +34,17 @@ public class TransactionDetail {
     @Column(name = "Price")
     private Double price;
     @Column(name = "Qty")
-    private Integer qty;
+    private Double qty;
     @Column(name = "Amt")
-    private Integer amt;
+    private Double amt;
     @Column(name = "Fee")
-    private Integer fee;
+    private Double fee;
     @Column(name = "Tax")
-    private Integer tax;
+    private Double tax;
     @Column(name = "StinTax")
-    private Integer transferTax;
+    private Double transferTax;
     @Column(name = "NetAmt")
-    private Integer netAmt;
+    private Double netAmt;
     @Column(name = "ModDate")
     private String modDate;
     @Column(name = "ModTime")

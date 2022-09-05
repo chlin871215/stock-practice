@@ -13,5 +13,5 @@ public class TransactionRequest {
     //private int customer;目前僅設customer為04
     private String stock;
     private String bsType;
-    private Integer qty;
+    private Double qty;
 }
