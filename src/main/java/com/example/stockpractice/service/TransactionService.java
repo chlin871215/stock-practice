@@ -170,20 +170,12 @@ public class TransactionService {
             }
         }
         //數值轉字串之檢查---------------------------------------------------------------------------------------------
-        String newDocSeqInt = Integer.toString(lastDocSeqInt);//數值轉字串
+        String newDocSeqInt = String.format("%03d",lastDocSeqInt);//數值轉字串
         String newDocSeqEng = "";
         for (int ascii : engToAscii) {
             newDocSeqEng += Character.toString(ascii);//list英文ascii轉字串
         }
-        String newDocSeq = "";
-        if (lastDocSeqInt < 10) {//如果數值為個位數
-            newDocSeq = newDocSeqEng + "00" + newDocSeqInt;//前面補00
-        } else if (lastDocSeqInt < 100) {//如果數值為十位數
-            newDocSeq = newDocSeqEng + "0" + newDocSeqInt;//前面補0
-        } else {
-            newDocSeq = newDocSeqEng + newDocSeqInt;
-        }
-        return newDocSeq;
+        return newDocSeqEng + newDocSeqInt;
     }
 
     private int getAmt(double price, int qty) {
