@@ -62,7 +62,7 @@ public class TransactionService {
             transactionDetail.setTradeDate(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")));//tradeDate
             transactionDetail.setBranchNo("F62S");//branchNo
             transactionDetail.setCustomerSeq("04");//customerSeq
-            transactionDetail.setDocSeq(getNewDocSeq());//docSeq
+            transactionDetail.setDocSeq(getNewDocSeq(transactionDetail.getTradeDate()));//docSeq
             transactionDetail.setStock(transactionRequest.getStock());//stock
             transactionDetail.setBsType(transactionRequest.getBsType());//bsType
             transactionDetail.setPrice(stockInfoRepo.findByStock(transactionRequest.getStock()).getCurPrice());//price
@@ -147,12 +147,12 @@ public class TransactionService {
 
     //method-------------------------------------------------------------------------------------------------------
 
-    private String getNewDocSeq() {//流水單號
+    private String getNewDocSeq(String tradeDate) {//流水單號
         String lastDocSeqEng = "AA";
         int lastDocSeqInt = 1;
-        if (null != transactionRepo.getNewDocSeq()) {
-            lastDocSeqEng = transactionRepo.getNewDocSeq().substring(0, 2);//取英文0~1
-            lastDocSeqInt = Integer.parseInt(transactionRepo.getNewDocSeq().substring(2, 5));//取數字2~4
+        if (null != transactionRepo.getNewDocSeq(tradeDate)) {
+            lastDocSeqEng = transactionRepo.getNewDocSeq(tradeDate).substring(0, 2);//取英文0~1
+            lastDocSeqInt = Integer.parseInt(transactionRepo.getNewDocSeq(tradeDate).substring(2, 5));//取數字2~4
         }
         List<Integer> engToAscii = lastDocSeqEng.chars().boxed().collect(Collectors.toList());//英文轉ascii
         //數字+1

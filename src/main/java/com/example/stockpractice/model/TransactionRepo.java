@@ -9,9 +9,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TransactionRepo extends JpaRepository<TransactionDetail, TransactionDetailPK> {
 
-    TransactionDetail findByDocSeqAndTradeDate(String docSeq,String tradeDate);
+    TransactionDetail findByDocSeqAndTradeDate(String docSeq, String tradeDate);
 
-    @Query(value = "SELECT DocSeq FROM hcmio ORDER BY TradeDate DESC,DocSeq DESC LIMIT 1",nativeQuery = true)
-    String getNewDocSeq();
+    @Query(value = "SELECT DocSeq FROM hcmio WHERE TradeDate = '?1' ORDER BY TradeDate DESC,DocSeq DESC LIMIT 1", nativeQuery = true)
+    String getNewDocSeq(String tradeDate);
 
 }
