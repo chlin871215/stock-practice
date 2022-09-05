@@ -38,15 +38,15 @@ public class TransactionService {
             if (null == stockInfoRepo.findByStock(transactionRequest.getStock())) {
                 return "This Stock doesn't exist";
             }
-            //check:qty不得為空或小於等於0
-            if (transactionRequest.getQty() <= 0 || null == transactionRequest.getQty()) {
+            //check:qty不得為空或小於等於0或含有小數
+            if (transactionRequest.getQty() <= 0 || null == transactionRequest.getQty() || transactionRequest.getQty() % 1 != 0) {
                 return "Qty data wrong";
             }
-            //qty數量過大
+            //qty不得超過9位數
             if (transactionRequest.getQty() >= 1_000_000_000) {
                 return "Qty too much";
             }
-            //check:bsType
+            //check:bsType不得為空或空白
             if (transactionRequest.getBsType().isEmpty() || transactionRequest.getBsType().isBlank()) {
                 return "BsType data wrong";
             }
@@ -58,11 +58,9 @@ public class TransactionService {
                 if (null == stockBalanceRepo.findByStock(transactionRequest.getStock()) || stockBalanceRepo.findByStock(transactionRequest.getStock()).getQty() - transactionRequest.getQty() < 0) {
                     return "Stock Balance doesn't enough";
                 }
-            } else if (null != stockBalanceRepo.findByStock(transactionRequest.getStock()) && transactionRequest.getQty() + stockBalanceRepo.findByStock(transactionRequest.getStock()).getRemainQty() >= 1_000_000_000) {
+            } else if (null != stockBalanceRepo.findByStock(transactionRequest.getStock()) && transactionRequest.getQty() + stockBalanceRepo.findByStock(transactionRequest.getStock()).getRemainQty() >= 1_000_000_000) {//remainQty不得超過9位數
                 return "RemainQty too much";
             }
-            //too much remainQty
-
         }
         //創建明細--------------------------------------------------------------------------------------------------
         TransactionDetail transactionDetail = new TransactionDetail();
