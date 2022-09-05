@@ -58,7 +58,7 @@ public class TransactionService {
                 if (null == stockBalanceRepo.findByStock(transactionRequest.getStock()) || stockBalanceRepo.findByStock(transactionRequest.getStock()).getQty() - transactionRequest.getQty() < 0) {
                     return "Stock Balance doesn't enough";
                 }
-            } else if (transactionRequest.getQty()+stockBalanceRepo.findByStock(transactionRequest.getStock()).getRemainQty() >= 1_000_000_000) {
+            } else if (null != stockBalanceRepo.findByStock(transactionRequest.getStock()) && transactionRequest.getQty() + stockBalanceRepo.findByStock(transactionRequest.getStock()).getRemainQty() >= 1_000_000_000) {
                 return "RemainQty too much";
             }
             //too much remainQty
