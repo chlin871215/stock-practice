@@ -149,7 +149,7 @@ public class TransactionService {
 
     private String getNewDocSeq(String tradeDate) {//流水單號
         String lastDocSeqEng = "AA";
-        int lastDocSeqInt = 1;
+        int lastDocSeqInt = 0;
         if (null != transactionRepo.getNewDocSeq(tradeDate)) {
             lastDocSeqEng = transactionRepo.getNewDocSeq(tradeDate).substring(0, 2);//取英文0~1
             lastDocSeqInt = Integer.parseInt(transactionRepo.getNewDocSeq(tradeDate).substring(2, 5));//取數字2~4
