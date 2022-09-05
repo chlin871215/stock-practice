@@ -141,7 +141,7 @@ public class TransactionService {
             int cost = stockBalanceRepo.findByStock(stock).getCost();
             int qty = stockBalanceRepo.findByStock(stock).getQty();
             Double curPrice = stockInfoRepo.findByStock(stock).getCurPrice();
-            return Integer.toString((int) (curPrice * qty) - cost-getFee(getAmt(curPrice,qty))-getTax(getAmt(curPrice,qty),"S"));
+            return Integer.toString((int) (curPrice * qty) - cost - getFee(getAmt(curPrice, qty)) - getTax(getAmt(curPrice, qty), "S"));
         }
     }
 
@@ -158,24 +158,28 @@ public class TransactionService {
         //數字+1
         lastDocSeqInt++;
         //進位處理--------------------------------------------------------------------------------------------------
-        if (lastDocSeqInt > 999) {//如果超過999則歸1且英文進位
-            lastDocSeqInt = 1;//歸1
-            engToAscii.set(1, engToAscii.get(1) + 1);//英文進位
-            if (engToAscii.get(1) > 90) {//如果超過Z
-                engToAscii.set(1, 65);//歸A
-                engToAscii.set(0, engToAscii.get(0) + 1);//進位
-                if (engToAscii.get(0) > 90) {//如果超過Z
-                    engToAscii.set(0, 65);//歸A、輪迴
+        {
+            if (lastDocSeqInt > 999) {//如果超過999則歸1且英文進位
+                lastDocSeqInt = 1;//歸1
+                engToAscii.set(1, engToAscii.get(1) + 1);//英文進位
+                if (engToAscii.get(1) > 90) {//如果超過Z
+                    engToAscii.set(1, 65);//歸A
+                    engToAscii.set(0, engToAscii.get(0) + 1);//進位
+                    if (engToAscii.get(0) > 90 && engToAscii.get(0) < 97) {//如果超過Z
+                        engToAscii.set(0, 97);//超過預設數據最大量，若超過給臨時數據庫aA001~zA999
+                    }
                 }
             }
         }
         //數值轉字串之檢查---------------------------------------------------------------------------------------------
-        String newDocSeqInt = String.format("%03d",lastDocSeqInt);//數值轉字串
-        String newDocSeqEng = "";
-        for (int ascii : engToAscii) {
-            newDocSeqEng += Character.toString(ascii);//list英文ascii轉字串
+        {
+            String newDocSeqInt = String.format("%03d", lastDocSeqInt);//數值轉字串
+            String newDocSeqEng = "";
+            for (int ascii : engToAscii) {
+                newDocSeqEng += Character.toString(ascii);//list英文ascii轉字串
+            }
+            return newDocSeqEng + newDocSeqInt;
         }
-        return newDocSeqEng + newDocSeqInt;
     }
 
     private int getAmt(double price, int qty) {
