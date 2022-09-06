@@ -200,16 +200,11 @@ public class TransactionService {
     }
 
     private Double getTax(Double amt, String bsType) {
-        if (bsType.equals("S"))
-            return (double) Math.round(amt * 0.003);
-        return 0.0;
+        return (bsType.equals("S")) ? (double) Math.round(amt * 0.003) : 0.0;
     }
 
     private Double getNetAmt(Double amt, Double fee, Double tax, String bsType) {
-        if (bsType.equals("B")) {
-            return -(amt + fee);
-        }
-        return amt - fee - tax;
+        return (bsType.equals("B")) ? (-(amt + fee)) : (amt - fee - tax);
     }
 
     private Double getBalancePrice(Double oldPrice, Double oldQty, Double newPrice, Double newQty) {//依比例計算價格
@@ -217,17 +212,11 @@ public class TransactionService {
     }
 
     private Double getBalanceCost(Double oldNetAmt, Double newNetAmt, String bsType) {
-        if (bsType.equals("B")) {
-            return Math.abs(oldNetAmt) + Math.abs(newNetAmt);
-        } else {
-            return Math.abs(oldNetAmt - newNetAmt);
-        }
+        return (bsType.equals("B")) ? (Math.abs(oldNetAmt) + Math.abs(newNetAmt)) : (Math.abs(oldNetAmt - newNetAmt));
     }
 
     private Double getBalanceQty(Double oldQty, Double newQty, String bsType) {
-        if (bsType.equals("B"))
-            return oldQty + newQty;
-        return oldQty - newQty;
+        return (bsType.equals("B")) ? (oldQty + newQty) : (oldQty - newQty);
     }
 
     private void getRandomPrice(String stock) {
@@ -236,11 +225,7 @@ public class TransactionService {
         Double newPrice, r;
         do {
             r = Math.random() / 10;//0~9.99，最高漲跌幅9.99％
-            if ((Math.random() * 10) < 5) {//取二分之一機率
-                newPrice = oldPrice * (1 + r);
-            } else {
-                newPrice = oldPrice * (1 - r);
-            }
+            newPrice = ((Math.random() * 10) < 5) ? (oldPrice * (1 + r)) : (oldPrice * (1 - r));//取二分之一機率
         } while (newPrice < 10);//股票最低價10
         stockInfo.setCurPrice(Math.round(newPrice * 10000.0) / 10000.0);//取小數點後第四位四捨五入
         stockInfoRepo.save(stockInfo);
