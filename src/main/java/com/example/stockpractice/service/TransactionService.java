@@ -5,6 +5,7 @@ import com.example.stockpractice.model.StockBalanceRepo;
 import com.example.stockpractice.model.StockInfoRepo;
 import com.example.stockpractice.model.TransactionRepo;
 import com.example.stockpractice.model.entity.StockBalance;
+import com.example.stockpractice.model.entity.StockInfo;
 import com.example.stockpractice.model.entity.TransactionDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -63,6 +64,7 @@ public class TransactionService {
             }
         }
         //創建明細--------------------------------------------------------------------------------------------------
+        getRandomPrice(transactionRequest.getStock());// 讓股票資訊價格隨機更動
         TransactionDetail transactionDetail = new TransactionDetail();
         {
             transactionDetail.setTradeDate(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")));//tradeDate
@@ -144,10 +146,11 @@ public class TransactionService {
         }
         //process
         {
+            getRandomPrice(stock);// 讓股票資訊價格隨機更動
             Double cost = stockBalanceRepo.findByStock(stock).getCost();
             Double qty = stockBalanceRepo.findByStock(stock).getQty();
             Double curPrice = stockInfoRepo.findByStock(stock).getCurPrice();
-            return Double.toString((curPrice * qty) - cost - getFee(getAmt(curPrice, qty)) - getTax(getAmt(curPrice, qty), "S"));
+            return Double.toString(Math.round(((curPrice * qty) - cost - getFee(getAmt(curPrice, qty)) - getTax(getAmt(curPrice, qty), "S")) * 10000.0) / 10000.0);
         }
     }
 
@@ -193,8 +196,7 @@ public class TransactionService {
     }
 
     private Double getFee(Double amt) {
-        Double fee = (double) Math.round(amt * 0.001425);
-        return fee;
+        return (double) Math.round(amt * 0.001425);
     }
 
     private Double getTax(Double amt, String bsType) {
@@ -226,6 +228,22 @@ public class TransactionService {
         if (bsType.equals("B"))
             return oldQty + newQty;
         return oldQty - newQty;
+    }
+
+    private void getRandomPrice(String stock) {
+        StockInfo stockInfo = stockInfoRepo.findByStock(stock);
+        Double oldPrice = stockInfo.getCurPrice();
+        Double newPrice, r;
+        do {
+            r = Math.random() / 10;//0~9.99，最高漲跌幅9.99％
+            if ((Math.random() * 10) < 5) {//取二分之一機率
+                newPrice = oldPrice * (1 + r);
+            } else {
+                newPrice = oldPrice * (1 - r);
+            }
+        } while (newPrice < 10);//股票最低價10
+        stockInfo.setCurPrice(Math.round(newPrice * 10000.0) / 10000.0);//取小數點後第四位四捨五入
+        stockInfoRepo.save(stockInfo);
     }
 
 }
