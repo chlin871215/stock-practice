@@ -19,10 +19,10 @@ public class BalanceService {
         return stockBalances;
     }
 
-    public StockBalance getStockBalanceByStock(String stock) {
-        StockBalance stockBalance = stockBalanceRepo.findByStock(stock);
-        return stockBalance;
-    }
+//    public StockBalance getStockBalanceByStock(String stock) {
+//        StockBalance stockBalance = stockBalanceRepo.findByStock(stock);
+//        return stockBalance;
+//    }
 
 
 }

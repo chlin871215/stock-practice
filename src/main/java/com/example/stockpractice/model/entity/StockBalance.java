@@ -37,7 +37,7 @@ public class StockBalance {
     @Column(name = "RemainQty")
     private Double remainQty;
     @Column(name = "Fee")
-    private Double fee;
+    private Integer fee;
     @Column(name = "Cost")
     private Double cost;
     @Column(name = "ModDate")

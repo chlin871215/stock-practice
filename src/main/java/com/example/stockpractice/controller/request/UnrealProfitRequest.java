@@ -9,13 +9,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TransactionRequest {
-    private String tradeDate;
+public class UnrealProfitRequest {
     private String branchNo;
-    private String docSeq;
     private String custSeq;
     private String stock;
-    private Double price;
-    private String bsType;
-    private Double qty;
 }

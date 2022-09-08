@@ -1,6 +1,8 @@
 package com.example.stockpractice.controller;
 
 import com.example.stockpractice.controller.request.TransactionRequest;
+import com.example.stockpractice.controller.request.UnrealProfitRequest;
+import com.example.stockpractice.controller.response.SumUnrealProfit;
 import com.example.stockpractice.controller.response.TransactionResponse;
 import com.example.stockpractice.model.StockBalanceRepo;
 import com.example.stockpractice.model.TransactionRepo;
@@ -24,16 +26,15 @@ public class TransactionController {
     public TransactionResponse transaction(@RequestBody TransactionRequest transactionRequest) {
         String response = transactionService.transaction(transactionRequest);
         if (response.equals("Transaction successful") || response.equals("Transaction complete,qty is 0")) {
-            return new TransactionResponse(response, transactionRepo.getNewDetail(), stockBalanceRepo.findByStock(transactionRequest.getStock()));
+            return new TransactionResponse(response, transactionRepo.findByDocSeqAndTradeDate(transactionRequest.getDocSeq(), transactionRequest.getTradeDate()), stockBalanceRepo.findByBranchNoAndCustSeqAndStock(transactionRequest.getBranchNo(), transactionRequest.getCustSeq(), transactionRequest.getStock()));
         }
         return new TransactionResponse(response, null, null);
     }
 
 
     //查詢未實現損益------------------------------------------------------------------------------------------------
-    @GetMapping("/{stock}")
-    public TransactionResponse unrealizedGainsAndLosses(@PathVariable String stock) {
-        String response = transactionService.unrealizedGainsAndLosses(stock);
-        return new TransactionResponse(response, null, null);
+    @PostMapping("/unreal")
+    public SumUnrealProfit unrealizedGainsAndLosses(@RequestBody UnrealProfitRequest unrealProfitRequest) {
+        return transactionService.unrealizedGainsAndLosses(unrealProfitRequest);
     }
 }

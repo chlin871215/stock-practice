@@ -29,14 +29,14 @@ public class BalanceController {
         return new GetResponse(null,stockBalances,null,null);
     }
 
-    @GetMapping("/balances/{stock}")
-    public GetResponse getStockBalanceByDocSeq(@PathVariable String stock) {
-        List<StockBalance> stockBalances =new ArrayList<>();
-        stockBalances.add(balanceService.getStockBalanceByStock(stock));
-        if (null==stockBalances){
-            return new GetResponse(null,null,null,"StockBalance doesn't exist");
-        }
-        return new GetResponse(null,stockBalances,null,null);
-    }
+//    @GetMapping("/balances/{stock}")
+//    public GetResponse getStockBalanceByDocSeq(@PathVariable String stock) {
+//        List<StockBalance> stockBalances =new ArrayList<>();
+//        stockBalances.add(balanceService.getStockBalanceByStock(stock));
+//        if (null==stockBalances){
+//            return new GetResponse(null,null,null,"StockBalance doesn't exist");
+//        }
+//        return new GetResponse(null,stockBalances,null,null);
+//    }
 
 }
